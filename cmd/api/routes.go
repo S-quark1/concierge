@@ -8,8 +8,12 @@ import (
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
-	//styles := http.FileServer(http.Dir("./ui"))
-	//http.Handle("/ui/", http.StripPrefix("/ui/", styles))
+	router.ServeFiles("/img/*filepath", http.Dir("./ui/img/"))
+	router.ServeFiles("/js/*filepath", http.Dir("./ui/js/"))
+	router.ServeFiles("/pages/*filepath", http.Dir("./ui/pages/"))
+	router.ServeFiles("/scss/*filepath", http.Dir("./ui/scss/"))
+	router.ServeFiles("/vendor/*filepath", http.Dir("./ui/vendor/"))
+	// TODO если что нужно тут добавляем
 	// LandingPage
 	router.HandlerFunc(http.MethodGet, "/", app.LandingPageHandler)
 
