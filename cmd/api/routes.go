@@ -20,9 +20,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/", app.LandingPageHandler)
 
 	// Admin
-	router.HandlerFunc(http.MethodGet, "/admin", app.AdminPageHandler)
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.AdminPageHandler)
 
 	// B2B
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.B2BClientPageHandler)
 
 	// B2C
 
