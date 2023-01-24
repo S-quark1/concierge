@@ -28,6 +28,8 @@ func (app *application) routes() http.Handler {
 	// B2C
 
 	// Concierge
+	//router.HandlerFunc(http.MethodGet, "/my-cabinet", app.CSPageHandler)
+	router.HandlerFunc(http.MethodGet, "/my-cabinet/services", app.AddServicesPageHandler)
 
 	// Partner
 
