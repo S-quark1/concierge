@@ -18,6 +18,7 @@ func (app *application) routes() http.Handler {
 
 	// LandingPage
 	router.HandlerFunc(http.MethodGet, "/", app.LandingPageHandler)
+	router.HandlerFunc(http.MethodPost, "/", app.RegFormHandler)
 
 	// Admin
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.AdminPageHandler)
