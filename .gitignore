@@ -7,3 +7,6 @@ cmd/api/landing.go
 cmd/api/main.go
 cmd/api/routes.go
 ui/index.html
+cmd/api/__debug_bin.exe
+cmd/api/admin.go
+cmd/api/b2b.go
