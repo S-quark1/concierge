@@ -1,0 +1,9 @@
+go.mod
+go.sum
+.vscode/launch.json
+.vscode/settings.json
+cmd/api/admin.go
+cmd/api/landing.go
+cmd/api/main.go
+cmd/api/routes.go
+ui/index.html

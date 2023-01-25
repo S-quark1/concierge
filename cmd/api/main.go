@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/concierge/service/internal/data"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/concierge/service/internal/data"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
@@ -36,17 +36,17 @@ type application struct {
 }
 
 func main() {
-	err := godotenv.Load() // using .env
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err := godotenv.Load() // using .env
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	var cfg config
 
-	flag.IntVar(&cfg.port, "port", 8080, "API server port")
+	flag.IntVar(&cfg.port, "port", 9820, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment development")
 
-	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("CS_DB_DSN"), "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:1234@localhost/ConciergeService?sslmode=disable", "PostgreSQL DSN")
 
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")

@@ -1,19 +1,20 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
-	router.ServeFiles("/css/*filepath", http.Dir("./ui/css/"))
-	router.ServeFiles("/img/*filepath", http.Dir("./ui/img/"))
-	router.ServeFiles("/js/*filepath", http.Dir("./ui/js/"))
-	router.ServeFiles("/pages/*filepath", http.Dir("./ui/pages/"))
-	router.ServeFiles("/scss/*filepath", http.Dir("./ui/scss/"))
-	router.ServeFiles("/vendor/*filepath", http.Dir("./ui/vendor/"))
+	router.ServeFiles("/css/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\css"))
+	router.ServeFiles("/img/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\img"))
+	router.ServeFiles("/js/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\js"))
+	router.ServeFiles("/pages/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages"))
+	router.ServeFiles("/scss/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\scss"))
+	router.ServeFiles("/vendor/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\vendor"))
 	// TODO если что нужно тут добавляем
 
 	// LandingPage
