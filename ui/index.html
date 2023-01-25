@@ -25,6 +25,8 @@
   <link href="vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="vendor/ionicons/ionicons.min.css">
+	<link rel="stylesheet" href="vendor/flaticons/flaticon.css">
 
   <!-- Template Main CSS File -->
   <link href="css/main.css" rel="stylesheet">
@@ -32,6 +34,60 @@
 </head>
 
 <body>
+
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close d-flex align-items-center justify-content-center" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" class="ion-ios-close"></span>
+          </button>
+        </div>
+        <div class="row no-gutters">
+          <div class="col-md-6 d-flex">
+            <div class="modal-body p-5 img d-flex color-1 text-center d-flex align-items-center">
+              <div class="text w-100">
+                <span class="icon-2 ion-ios-beer"></span>
+                <h5>Plan your activities and control your progress online</h5>
+                <div class="icon">
+                  <span class="ion-ios-bicycle"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 d-flex">
+            <div class="modal-body p-5 img d-flex align-items-center color-2">
+              <div class="text w-100 py-0 py-md-5">
+                <h3 class="mb-4">Sign In</h3>
+                <form action="#" class="signup-form">
+                  <div class="form-group mb-3">
+                    <label class="label" for="name">Login or Email</label>
+                    <input type="text" class="form-control" placeholder="example@mail.com">
+                  </div>
+                  <div class="form-group mb-3">
+                    <label class="label" for="password">Password</label>
+                    <input type="password" class="form-control" placeholder="Password">
+                  </div>
+                  <div class="form-group d-md-flex">
+                    <div class="form-check w-100 text-left">
+                      <label class="custom-control fill-checkbox">
+                        <input type="checkbox" class="fill-control-input">
+                        <span class="fill-control-indicator"></span>
+                        <span class="fill-control-description">Remember Me</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit" class="form-control btn btn-primary rounded submit px-3">Sign In</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top ">
@@ -48,7 +104,13 @@
           <li><a class="nav-link scrollto" href="#services">Services</a></li>
           <li><a class="nav-link   scrollto" href="#portfolio">Portfolio</a></li>
           <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
-          <li><a class="getstarted scrollto" href="/my-cabinet-b-client">Get Started</a></li>
+          <li>
+            <button data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+              <a class="getstarted" data-toggle="modal" data-target="#exampleModalCenter">
+                Get Started
+              </a>
+            </button>
+          </li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
