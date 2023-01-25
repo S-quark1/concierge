@@ -10,3 +10,4 @@ ui/index.html
 cmd/api/__debug_bin.exe
 cmd/api/admin.go
 cmd/api/b2b.go
+ui/css/modal.css
