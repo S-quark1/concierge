@@ -22,6 +22,7 @@ func (app *application) routes() http.Handler {
 
 	// Admin
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.AdminPageHandler)
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.AdminRegisterUsersPageHandler)
 
 	// B2B
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.B2BClientPageHandler)
@@ -31,6 +32,7 @@ func (app *application) routes() http.Handler {
 	// Concierge
 	//router.HandlerFunc(http.MethodGet, "/my-cabinet", app.CSPageHandler)
 	router.HandlerFunc(http.MethodGet, "/my-cabinet/services", app.AddServicesPageHandler)
+	router.HandlerFunc(http.MethodPost, "/my-cabinet/services", app.AddServicesHandler)
 
 	// Partner
 

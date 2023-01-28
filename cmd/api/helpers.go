@@ -111,3 +111,13 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 	}
 	return nil
 }
+
+func (app *application) convertInt(s string) int {
+	// validator instance and return the default value.
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	// Otherwise, return the converted integer value.
+	return i
+}

@@ -31,7 +31,7 @@ RETURNING id, created_at`
 	return r.DB.QueryRowContext(ctx, query, args...).Scan(&regForm.ID, &regForm.CreatedAt)
 }
 
-func (m *RegFormModel) GetByDate() ([]*RegForm, error) {
+func (m *RegFormModel) GetByDateAsc() ([]*RegForm, error) {
 	query := `
     SELECT id, company_name, email, phone_number, created_at
     FROM RegForm

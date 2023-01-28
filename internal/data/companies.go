@@ -21,7 +21,7 @@ type CompanyModel struct {
 	DB *sql.DB
 }
 
-func (c CompanyModel) Exists(id int32) error {
+func (c CompanyModel) Exists(id int) error {
 	query := `SELECT id FROM company
 WHERE id = $1
 `

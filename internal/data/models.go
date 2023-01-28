@@ -16,7 +16,7 @@ type Models struct {
 	Service  ServiceModel
 	Price    PriceModel
 	Company  CompanyModel
-	Employee EmployeeModel
+	Employee CSEmployeeModel
 	RegForm  RegFormModel
 }
 
@@ -25,7 +25,7 @@ func NewModels(db *sql.DB) Models {
 		Service:  ServiceModel{DB: db},
 		Price:    PriceModel{DB: db},
 		Company:  CompanyModel{DB: db},
-		Employee: EmployeeModel{DB: db},
+		Employee: CSEmployeeModel{DB: db},
 		RegForm:  RegFormModel{DB: db},
 	}
 }
