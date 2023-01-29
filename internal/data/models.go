@@ -13,19 +13,21 @@ var (
 )
 
 type Models struct {
-	Service  ServiceModel
-	Price    PriceModel
-	Company  CompanyModel
-	Employee CSEmployeeModel
-	RegForm  RegFormModel
+	Service ServiceModel
+	Price   PriceModel
+	Company CompanyModel
+	User    UserModel
+	RegForm RegFormModel
+	Token   TokenModel
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Service:  ServiceModel{DB: db},
-		Price:    PriceModel{DB: db},
-		Company:  CompanyModel{DB: db},
-		Employee: CSEmployeeModel{DB: db},
-		RegForm:  RegFormModel{DB: db},
+		Service: ServiceModel{DB: db},
+		Price:   PriceModel{DB: db},
+		Company: CompanyModel{DB: db},
+		User:    UserModel{DB: db},
+		RegForm: RegFormModel{DB: db},
+		Token:   TokenModel{DB: db},
 	}
 }
