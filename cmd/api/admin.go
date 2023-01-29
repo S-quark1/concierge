@@ -29,3 +29,26 @@ func (app *application) AdminPageHandler(w http.ResponseWriter, r *http.Request)
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) AdminRegisterUsersPageHandler(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		//"./ui/pages/admin/admin-page.html", //todo нужны html
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	regForms, err := app.models.RegForm.GetByDateAsc()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = ts.Execute(w, regForms)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/concierge/service/internal/data"
 	"html/template"
 	"net/http"
+	"time"
 )
 
 func (app *application) LandingPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,4 +29,30 @@ func (app *application) LandingPageHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) RegFormHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
+
+	email := r.FormValue("emailReg")
+	companyName := r.FormValue("companyNameReg")
+	phone := r.FormValue("phoneReg")
+
+	regForm := &data.RegForm{
+		CompanyName: companyName,
+		Email:       email,
+		PhoneNumber: phone,
+		CreatedAt:   time.Time{},
+	}
+
+	err = app.models.RegForm.Insert(regForm)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	print("а дальше что?")
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// get function. only for the ui
 func (app *application) AddServicesPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		//"./ui/pages/admin/admin-page.html", // todo нужны html
@@ -17,34 +18,69 @@ func (app *application) AddServicesPageHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	var input struct {
-		// service
-		Name              string `json:"name"`
-		Description       string `json:"description"`
-		ServiceType       string `json:"type"`
-		CreatedByEmployee int64  `json:"createdBy_id"`
-		CompanyProviding  int32  `json:"company_id"`
-
-		//prices
-		Prices   []int32  `json:"prices"`
-		UserType []string `json:"user_types"`
+	err = ts.Execute(w, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 	}
 
-	err = app.readJSON(w, r, &input)
+}
+
+// post function. actual data adding
+func (app *application) AddServicesHandler(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		//"./ui/pages/admin/admin-page.html", // todo нужны html
+	}
+
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	service := &data.Service{
-		Name:              input.Name,
-		Description:       input.Description,
-		ServiceType:       input.ServiceType,
-		CreatedByEmployee: input.CreatedByEmployee,
-		CompanyProviding:  input.CompanyProviding,
+	err = r.ParseForm()
+	if err != nil {
+		app.badRequestResponse(w, r, err)
 	}
 
-	// todo
+	var input struct {
+		// service
+		Name             string `json:"name"`
+		Description      string `json:"description"`
+		Type             string `json:"type"`
+		CreatedByID      int64  `json:"createdBy_id"`
+		CompanyProviding int    `json:"company_id"`
+
+		//prices
+		Prices   []int    `json:"prices"`
+		UserType []string `json:"user_types"`
+	}
+
+	input.Name = r.FormValue("nameService")
+	input.Description = r.FormValue("descService")
+	input.Type = r.FormValue("typeService")
+	input.CreatedByID = int64(app.convertInt(r.FormValue("createdByIDService")))
+	input.CompanyProviding = app.convertInt(r.FormValue("companyProvidingService"))
+
+	for index, element := range r.Form["pricesService"] {
+		input.Prices[index] = app.convertInt(element)
+		input.UserType[index] = element
+	}
+	//input.Prices[0] = app.convertInt(r.Form["pricesService"][0])
+	//input.Prices[1] = app.convertInt(r.Form["pricesService"][1])
+	//input.Prices[2] = app.convertInt(r.Form["pricesService"][2])
+	//
+	//input.UserType[0] = r.Form["userTypeService"][0]
+	//input.UserType[1] = r.Form["userTypeService"][1]
+	//input.UserType[2] = r.Form["userTypeService"][2]
+
+	service := &data.Service{
+		Name:        input.Name,
+		Description: input.Description,
+		Type:        input.Type,
+		CreatedByID: input.CreatedByID,
+		CompanyID:   input.CompanyProviding,
+	}
+
 	//v := validator.New()
 	//if data.ValidateService(v, service); !v.Valid() {
 	//	app.failedValidationResponse(w, r, v.Errors)
@@ -52,7 +88,7 @@ func (app *application) AddServicesPageHandler(w http.ResponseWriter, r *http.Re
 	//}
 
 	// check if company exists
-	err = app.models.Company.Exists(service.CompanyProviding)
+	err = app.models.Company.Exists(service.CompanyID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return

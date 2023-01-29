@@ -8,73 +8,56 @@ import (
 )
 
 type Service struct {
-	/*id bigserial PRIMARY KEY,
-	name text NOT NULL,
-	description text NOT NULL,
-	dateOfCreation timestamp(0) with time zone NOT NULL DEFAULT NOW(),
-	type text NOT NULL,
-	// type_id int NOT NULL,   // actually no, I don't need them, just make a table with entry service_id (k) and type text
-	createdBy_id bigint NOT NULL,	//k
-	company_id int NOT NULL,
-	//prices_id bigint NOT NULL,  // actually no, I don't need them, just make a table with entry service_id (k) and type text
-	version int NOT NULL DEFAULT 1*/
-
-	ID                int64     `json:"id"`
-	Name              string    `json:"name"`
-	Description       string    `json:"description"`
-	DateOfCreation    time.Time `json:"-"`
-	ServiceType       string    `json:"type"`
-	CreatedByEmployee int64     `json:"createdBy_id"`
-	CompanyProviding  int32     `json:"company_id"`
-	Version           int32     `json:"version"`
+	ID          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Type        string    `json:"type"`
+	CreatedByID int64     `json:"created_by_id"`
+	CompanyID   int       `json:"company_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	DeletedAt   time.Time `json:"deleted_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Todo I need companies, cs employees and prices
 type ServiceModel struct {
 	DB *sql.DB
 }
 
 // cs employee can add new services which further would be presented in client's panel
-func (s ServiceModel) Insert(service *Service) error {
+func (s *ServiceModel) Insert(service *Service) error {
 	query := `
-INSERT INTO service (name, description, type, createdBy_id, company_id)
+INSERT INTO service (name, description, type, created_by_id, company_id)
 VALUES ($1, $2, $3, $4, $5)
--- WHERE EXISTS (SELECT 1 FROM company WHERE id = $5)
-RETURNING id, dateOfCreation, version`
-
-	args := []interface{}{service.Name, service.Description, service.ServiceType, service.CreatedByEmployee, service.CompanyProviding}
+RETURNING id, created_at, updated_at`
+	args := []interface{}{service.Name, service.Description, service.Type, service.CreatedByID, service.CompanyID}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-
-	return s.DB.QueryRowContext(ctx, query, args...).Scan(&service.ID, &service.DateOfCreation, &service.Version)
+	return s.DB.QueryRowContext(ctx, query, args...).Scan(&service.ID, &service.CreatedAt, &service.UpdatedAt)
 }
 
 // get services, companies, employee and prices
-func (s ServiceModel) GetById(id int64) (*Service, error) {
+func (s *ServiceModel) GetById(id int64) (*Service, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
-
 	query := `
-SELECT id, name, description, dateOfCreation, type, createdBy_id, company_id, version
+SELECT id, name, description, type, created_by_id, company_id, created_at, deleted_at, updated_at
 FROM service
-WHERE id = $1`
+WHERE id = $1  AND deleted_at IS NULL`
 	var service Service
-
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-
 	err := s.DB.QueryRowContext(ctx, query, id).Scan(
 		&service.ID,
 		&service.Name,
 		&service.Description,
-		&service.DateOfCreation,
-		&service.ServiceType,
-		&service.CreatedByEmployee,
-		&service.CompanyProviding,
-		&service.Version,
+		&service.Type,
+		&service.CreatedByID,
+		&service.CompanyID,
+		&service.CreatedAt,
+		&service.DeletedAt,
+		&service.UpdatedAt,
 	)
-
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -86,41 +69,106 @@ WHERE id = $1`
 	return &service, nil
 }
 
+func (s *ServiceModel) Update(service *Service) error {
+	query := `
+UPDATE service
+SET name = $1, description = $2, type = $3, created_by_id = $4, company_id = $5, updated_at = NOW()
+WHERE id = $6 AND deleted_at IS NULL`
+	args := []interface{}{service.Name, service.Description, service.Type, service.CreatedByID, service.CompanyID, service.ID}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_, err := s.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *ServiceModel) Delete(id int64) error {
+	query := `DELETE FROM service WHERE id = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	result, err := s.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
+}
+
+func (s *ServiceModel) SoftDelete(id int64) error {
+	query := `
+UPDATE service
+SET deleted_at = NOW()
+WHERE id = $1 AND deleted_at IS NULL`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := s.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
+}
+
 type Price struct {
-	/*service_id bigint NOT NULL,
-	price int NOT NULL,
-	user_type text NOT NULL,   // later create k
-	version int NOT NULL DEFAULT 1*/
-	ServiceID int64  `json:"service_id,omitempty"`
-	Price     int32  `json:"price"`
-	UserType  string `json:"user_type"`
-	Version   int32  `json:"version"`
+	ID        int64     `json:"id"`
+	ServiceID int64     `json:"service_id"`
+	Price     int       `json:"price"`
+	UserType  string    `json:"user_type"`
+	CreatedAt time.Time `json:"created_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type PriceModel struct {
 	DB *sql.DB
 }
 
-func (p PriceModel) Insert(price *Price) error { // TODO: проверить существует ли id
+func (p *PriceModel) Insert(price *Price) error { // TODO: проверить существует ли id
 	query := `
 INSERT INTO price (service_id, price, user_type)
 VALUES ($1, $2, $3)
-RETURNING version`
-
+RETURNING id, created_at, updated_at`
 	args := []interface{}{price.ServiceID, price.Price, price.UserType}
 
-	return p.DB.QueryRow(query, args...).Scan(&price.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := p.DB.QueryRowContext(ctx, query, args...).Scan(&price.ID, &price.CreatedAt, &price.UpdatedAt)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // get all prices for a specific service
-func (p PriceModel) GetById(serviceID int64) ([]*Price, error) {
+func (p *PriceModel) GetByServiceId(serviceID int64) ([]*Price, error) {
 	if serviceID < 1 {
 		return nil, ErrRecordNotFound
 	}
 	query := `
-SELECT price, user_type, version
+SELECT id, service_id, price, user_type, created_at, deleted_at, updated_at
 FROM price
-WHERE service_id = $1`
+WHERE service_id = $1 AND deleted_at IS NULL`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -141,9 +189,13 @@ WHERE service_id = $1`
 		// Scan the values from the row into the Movie struct. Again, note that we're
 		// using the pq.Array() adapter on the genres field here.
 		err := rows.Scan(
+			&price.ID,
+			&price.ServiceID,
 			&price.Price,
 			&price.UserType,
-			&price.Version,
+			&price.CreatedAt,
+			&price.DeletedAt,
+			&price.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -156,4 +208,63 @@ WHERE service_id = $1`
 		return nil, err
 	}
 	return prices, nil
+}
+
+func (p *PriceModel) Update(price *Price) error {
+	query := `
+UPDATE price
+SET price = $1, user_type = $2, service_id = $3, updated_at = NOW()
+WHERE id = $4 AND deleted_at IS NULL`
+	args := []interface{}{price.Price, price.UserType, price.ServiceID, price.ID}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := p.DB.QueryRowContext(ctx, query, args...).Scan(&price.UpdatedAt)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
+}
+
+func (p *PriceModel) Delete(id int64) error {
+	query := `DELETE FROM price WHERE id = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	result, err := p.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
+}
+
+func (p *PriceModel) SoftDelete(id int64) error {
+	query := `
+UPDATE price
+SET deleted_at = NOW()
+WHERE id = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	result, err := p.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
 }

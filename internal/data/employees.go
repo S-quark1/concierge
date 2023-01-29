@@ -21,18 +21,19 @@ password_hash bytea NOT NULL,
 role smallint NOT NULL,
 dateOfCreation timestamp(0) with time zone NOT NULL DEFAULT NOW(),*/
 
-type Employee struct {
-	ID             int64     `json:"id"`
-	FirstName      string    `json:"firstname"`
-	LastName       string    `json:"lastname"`
-	Username       string    `json:"username"`
-	Password       password  `json:"-"`
-	DateOfCreation time.Time `json:"-"`
-	Role           int32     `json:"role"`
-	Version        int32     `json:"version"`
+type CSEmployee struct {
+	ID        int64     `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Username  string    `json:"username"`
+	Password  password  `json:"password_hash"`
+	Role      string    `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type EmployeeModel struct {
+type CSEmployeeModel struct {
 	DB *sql.DB
 }
 
@@ -73,7 +74,7 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
 	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
 }
-func ValidateEmployee(v *validator.Validator, employee *Employee) {
+func ValidateEmployee(v *validator.Validator, employee *CSEmployee) {
 	v.Check(employee.FirstName != "", "firstname", "must be provided")
 	v.Check(len(employee.FirstName) <= 500, "firstname", "must not be more than 500 bytes long")
 
@@ -96,47 +97,48 @@ func ValidateEmployee(v *validator.Validator, employee *Employee) {
 	}
 }
 
-func (e EmployeeModel) Insert(employee *Employee) error {
+func (e CSEmployeeModel) Insert(csEmployee *CSEmployee) (string, error) {
 	query := `
-INSERT INTO cs_employee (firstname, lastname, username, password_hash, role)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, dateOfCreation, version`
-	args := []interface{}{employee.FirstName, employee.LastName, employee.Username, employee.Password.hash, employee.Role}
+INSERT INTO cs_employee (first_name, last_name, username, password_hash, role, created_at) 
+VALUES ($1, $2, $3, $4, $5, NOW()) 
+RETURNING id`
+	args := []interface{}{csEmployee.FirstName, csEmployee.LastName, csEmployee.Username, csEmployee.Password.hash, csEmployee.Role}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := e.DB.QueryRowContext(ctx, query, args...).Scan(&employee.ID, &employee.DateOfCreation, &employee.Version)
+	err := e.DB.QueryRowContext(ctx, query, args...).Scan(&csEmployee.ID)
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"` ||
 			err.Error() == `pq: повторяющееся значение ключа нарушает ограничение уникальности "users_email_key"`:
-			return ErrDuplicateUsername
+			return "", ErrDuplicateUsername
 		default:
-			return err
+			return "", err
 		}
 	}
-	return nil
+	return csEmployee.Username, nil
 }
 
-func (e EmployeeModel) GetByUsername(username string) (*Employee, error) {
+func (e CSEmployeeModel) GetByUsername(username string) (*CSEmployee, error) {
 	query := `
-SELECT id, firstName, lastName, username, password_hash, role, dateOfCreation, version
+SELECT id, first_name, last_name, username, password_hash, role, created_at, deleted_at, updated_at
 FROM cs_employee
 WHERE username = $1`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	var employee Employee
+	var csEmployee CSEmployee
 
 	err := e.DB.QueryRowContext(ctx, query, username).Scan(
-		&employee.ID,
-		&employee.FirstName,
-		&employee.LastName,
-		&employee.Username,
-		&employee.Password.hash,
-		&employee.Role,
-		&employee.DateOfCreation,
-		&employee.Version,
+		&csEmployee.ID,
+		&csEmployee.FirstName,
+		&csEmployee.LastName,
+		&csEmployee.Username,
+		&csEmployee.Password,
+		&csEmployee.Role,
+		&csEmployee.CreatedAt,
+		&csEmployee.DeletedAt,
+		&csEmployee.UpdatedAt,
 	)
 	if err != nil {
 		switch {
@@ -146,5 +148,114 @@ WHERE username = $1`
 			return nil, err
 		}
 	}
-	return &employee, nil
+	return &csEmployee, nil
+}
+
+func (e *CSEmployeeModel) GetAll() ([]*CSEmployee, error) {
+	// Declare the SQL statement
+	query := `
+SELECT id, first_name, last_name, username, password_hash, role, created_at, deleted_at, updated_at 
+FROM cs_employee`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := e.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	employees := []*CSEmployee{}
+
+	// Iterate over the rows, scanning the result into a new employee struct and
+	// appending it to the employees slice.
+	for rows.Next() {
+		var employee CSEmployee
+		err := rows.Scan(
+			&employee.ID,
+			&employee.FirstName,
+			&employee.LastName,
+			&employee.Username,
+			&employee.Role,
+			&employee.CreatedAt,
+			&employee.UpdatedAt,
+			&employee.DeletedAt)
+		if err != nil {
+			return nil, err
+		}
+		employees = append(employees, &employee)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return employees, nil
+}
+
+func (e *CSEmployeeModel) Update(employee *CSEmployee) error {
+	query := `
+UPDATE cs_employee 
+SET first_name = $1, last_name = $2, username = $3, 
+password_hash = $4, role = $5, updated_at = NOW() 
+WHERE id = $6`
+	args := []interface{}{employee.FirstName, employee.LastName, employee.Username, employee.Password.hash, employee.Role, employee.ID}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := e.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
+}
+
+func (e *CSEmployeeModel) Delete(id int64) error {
+	query := `
+DELETE FROM cs_employee 
+WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := e.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
+}
+
+func (e *CSEmployeeModel) SoftDelete(id int64) error {
+	query := `
+UPDATE cs_employee 
+SET deleted_at = NOW() 
+WHERE id = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := e.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
 }
