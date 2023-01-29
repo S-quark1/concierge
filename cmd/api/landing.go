@@ -9,7 +9,8 @@ import (
 
 func (app *application) LandingPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"./ui/index.html", // the order... matters?
+		"C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\index.html",
+		// "\\ui\\index.html",
 	}
 
 	ts, err := template.ParseFiles(files...)

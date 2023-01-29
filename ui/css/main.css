@@ -191,6 +191,12 @@ h6 {
   color: #8c7c47;
 }
 
+.navbar button{
+  background-color: #ffffff00;
+  color: #ffffff00;
+  border-color: #ffffff00;
+}
+
 .navbar .getstarted,
 .navbar .getstarted:focus {
   padding: 8px 20px;
