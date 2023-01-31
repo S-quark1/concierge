@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/concierge/service/internal/data"
 	"html/template"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 	"time"
 )
 
-func (app *application) LandingPageHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) showLandingPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"./ui/index.html", // the order... matters?
 	}
@@ -19,12 +20,6 @@ func (app *application) LandingPageHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// Use the ExecuteTemplate() method to write the content of the "base"
-	// template as the response body.
-
-	// The last parameter to Execute() represents any dynamic data that we
-	// want to pass in, which for now we'll leave as nil.
-	//err = ts.ExecuteTemplate(w, "base", "smth smth smth smth data")
 	err = ts.Execute(w, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -66,51 +61,55 @@ func (app *application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//username := strings.Split(r.FormValue("usernameD"), " ")
+	email := strings.Split(r.FormValue("emailD"), " ")
 	pswd := strings.Split(r.FormValue("passwordD"), " ")
 
-	user, err := app.models.User.GetByUsername("ivan55")
+	user, err := app.models.User.GetByEmail(email[0])
 	if err != nil {
-		app.notFoundResponse(w, r)
-		//http.Redirect(w, r, "http://localhost:8080", http.StatusNotFound)
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+			app.logError(r, err)
+			//http.Redirect(w, r, "http://localhost:8080", http.StatusNotFound)
+		}
 		return
 	}
-
-	//
-	//err = user.Password.Set(pswd[0])
-	//if err != nil {
-	//	return
-	//}
-	//err = app.models.User.Update(user)
-	//if err != nil {
-	//	return
-	//}
-
-	//print(username)
-	print(user.UserType)
 
 	match, err := user.Password.Matches(pswd[0])
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-		http.Redirect(w, r, "http://localhost:8080", http.StatusInternalServerError)
+		http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
+		return
 	}
 
 	if !match {
 		app.invalidCredentialsResponse(w, r)
-		http.Redirect(w, r, "http://localhost:8080", http.StatusUnauthorized)
+		http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
+		return
 	}
 
-	_, err = app.models.Token.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
+	token, err := app.models.Token.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+	d := "Bearer " + token.Plaintext
+	r = app.contextSetUser(r, user)
+	//r.Header.Add("Vary", "Authorization")
+	r.Header.Add("Authorization", d)
+
+	//d := []string{"Bearer ", token.Plaintext}
+	//r = app.contextSetUser(r, user)
+	//w.Header()["Authorization"] = d
 
 	if user.UserType == "admin" {
-		http.Redirect(w, r, "http://localhost:8080/my-cabinet-admin", http.StatusOK)
+		http.Redirect(w, r, "http://localhost:8080/my-cabinet-admin", http.StatusSeeOther)
+		return
 	} else if user.UserType == "cs_employee" {
-		http.Redirect(w, r, "http://localhost:8080/my-cabinet", http.StatusOK)
+		http.Redirect(w, r, "http://localhost:8080/my-cabinet", http.StatusSeeOther)
+		return
 	}
-	print("huh")
-	http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
+	//http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
 }

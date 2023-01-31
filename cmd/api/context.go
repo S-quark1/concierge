@@ -22,6 +22,11 @@ func (app *application) contextSetUser(r *http.Request, user *data.User) *http.R
 	return r.WithContext(ctx)
 }
 
+func (app *application) ctxSetUser(w *http.Request, user *data.User) *http.Request {
+	ctx := context.WithValue(w.Context(), userContextKey, user)
+	return w.WithContext(ctx)
+}
+
 // The contextSetUser() retrieves the User struct from the request context. The only
 // time that we'll use this helper is when we logically expect there to be User struct
 // value in the context, and if it doesn't exist it will firmly be an 'unexpected' error.

@@ -2,13 +2,16 @@ package main
 
 import (
 	"github.com/concierge/service/internal/data"
+	"github.com/concierge/service/internal/validator"
 	"html/template"
 	"net/http"
+	"time"
 )
 
-func (app *application) AdminPageHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) showAdminPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"./ui/pages/admin/admin-page.html",
+		//"C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages\\admin\\admin-page.html",
 		//"./ui/pages/admin/blank.html",
 		//"./ui/pages/admin/404.html", // TODO и остальное... или еще рано?
 	}
@@ -32,7 +35,7 @@ func (app *application) AdminPageHandler(w http.ResponseWriter, r *http.Request)
 }
 
 // get
-func (app *application) AdminRegisterUsersPageHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) showAdminRegisterUsersPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		//"./ui/pages/admin/admin-page.html", //todo нужны html
 	}
@@ -165,6 +168,87 @@ func (app *application) PostAddServicesHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 	}
+
+	// todo тут что-то нужно возвращать
+	http.Redirect(w, r, "http://localhost:8080/my-cabinet/services", http.StatusOK)
+}
+
+func (app *application) PostAddUsersHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		FirstName   string `json:"first_name"`
+		LastName    string `json:"last_name"`
+		Email       string `json:"email"`
+		Username    string `json:"username"`
+		Password    string `json:"password"`
+		UserType    string `json:"user_type"`
+		Preferences string `json:"preferences"`
+	}
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user := &data.User{
+		FirstName:   input.FirstName,
+		LastName:    input.LastName,
+		Email:       input.Email,
+		Username:    input.Username,
+		Activated:   false,
+		UserType:    input.UserType,
+		Preferences: input.Preferences,
+	}
+
+	err = user.Password.Set(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+
+	// Validate the user struct and return the error messages to the client if any of
+	// the checks fail.
+	if data.ValidateUser(v, user); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = app.models.User.Insert(user)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	_, err = app.models.Token.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	//app.background(func() {
+	//	// As there are now multiple pieces of data that we want to pass to our email
+	//	// templates, we create a map to act as a 'holding structure' for the data. This
+	//	// contains the plaintext version of the activation token for the user, along
+	//	// with their ID.
+	//	Data := map[string]interface{}{
+	//		"pswd":     input.Password,
+	//		"username": user.Username,
+	//	}
+	//
+	//	err = app.mailer.Send(user.Email, "user_welcome.tmpl", Data)
+	//	if err != nil {
+	//		// Importantly, if there is an error sending the email then we use the
+	//		// app.logger.PrintError() helper to manage it, instead of the
+	//		// app.serverErrorResponse() helper like before.
+	//		app.logger.Print(err)
+	//	}
+	//})
 
 	// todo тут что-то нужно возвращать
 	http.Redirect(w, r, "http://localhost:8080/my-cabinet/services", http.StatusOK)

@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/concierge/service/internal/mailer"
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/concierge/service/internal/data"
@@ -27,12 +29,21 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  string
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 type application struct {
 	config config
 	logger *log.Logger
 	models data.Models
+	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
@@ -43,7 +54,7 @@ func main() {
 
 	var cfg config
 
-	flag.IntVar(&cfg.port, "port", 9820, "API server port")
+	flag.IntVar(&cfg.port, "port", 8080, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment development")
 
 	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:1234@localhost/ConciergeService?sslmode=disable", "PostgreSQL DSN")

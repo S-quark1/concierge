@@ -11,7 +11,7 @@ import (
 func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the email and password from the request body.
 	var input struct {
-		Username string `json:"username"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	err := app.readJSON(w, r, &input)
@@ -21,7 +21,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 	// Validate the email and password provided by the client.
 	v := validator.New()
-	data.ValidateUsername(v, input.Username)
+	data.ValidateEmail(v, input.Email)
 	data.ValidatePasswordPlaintext(v, input.Password)
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
@@ -30,7 +30,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	// Lookup the user record based on the email address. If no matching user was
 	// found, then we call the app.invalidCredentialsResponse() helper to send a 401
 	// Unauthorized response to the client (we will create this helper in a moment).
-	user, err := app.models.User.GetByUsername(input.Username)
+	user, err := app.models.User.GetByEmail(input.Email)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):

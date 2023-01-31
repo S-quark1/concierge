@@ -31,7 +31,7 @@ RETURNING id, created_at`
 	return r.DB.QueryRowContext(ctx, query, args...).Scan(&regForm.ID, &regForm.CreatedAt)
 }
 
-func (m *RegFormModel) GetByDateAsc() ([]*RegForm, error) {
+func (r *RegFormModel) GetByDateAsc() ([]*RegForm, error) {
 	query := `
     SELECT id, company_name, email, phone_number, created_at
     FROM RegForm
@@ -40,7 +40,7 @@ func (m *RegFormModel) GetByDateAsc() ([]*RegForm, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query)
+	rows, err := r.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}

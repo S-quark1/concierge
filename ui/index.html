@@ -59,14 +59,14 @@
             <div class="modal-body p-5 img d-flex align-items-center color-2">
               <div class="text w-100 py-0 py-md-5">
                 <h3 class="mb-4">Sign In</h3>
-                <form action="#" class="signup-form">
+                <form action="/login" class="signup-form" method="post">
                   <div class="form-group mb-3">
                     <label class="label" for="name">Login or Email</label>
-                    <input type="text" class="form-control" placeholder="example@mail.com">
+                    <input type="text" class="form-control" name="emailD" placeholder="example@gmail.com">
                   </div>
                   <div class="form-group mb-3">
                     <label class="label" for="password">Password</label>
-                    <input type="password" class="form-control" placeholder="Password">
+                    <input type="password" class="form-control" name="passwordD" placeholder="Password">
                   </div>
                   <div class="form-group d-md-flex">
                     <div class="form-check w-100 text-left">
@@ -136,17 +136,17 @@
           <h1>Fill out this form </h1>
           <h2>To get access to the best of what we offer:</h2>
 
-          <form action="/" method="post">
+          <form action="/regForm" method="post">
             <div class="col-sm-10 mb-4">
-              <input type="text" class="form-control form-control-lg" id="colFormLabel" placeholder="Company Name">
+              <input type="text" name="companyNameReg" class="form-control form-control-lg" id="colFormLabel" placeholder="Example Inc.">
             </div>  
 
             <div class="col-sm-10 mb-4">
-              <input type="email" class="form-control form-control-lg" id="colFormLabel" placeholder="Email">
+              <input type="email" name="emailReg" class="form-control form-control-lg" id="colFormLabel" placeholder="example@gmail.com">
             </div>
             
             <div class="col-sm-10 mb-4">
-              <input type="number" class="form-control form-control-lg" id="colFormLabel" placeholder="Number">
+              <input type="number" name="phoneReg" class="form-control form-control-lg" id="colFormLabel" placeholder="+7 707 654 02 03">
             </div>
 
             <button type="submit" class="btn btn-lg btn-secondary">Send</button>

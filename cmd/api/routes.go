@@ -14,16 +14,24 @@ func (app *application) routes() http.Handler {
 	router.ServeFiles("/pages/*filepath", http.Dir("./ui/pages/"))
 	router.ServeFiles("/scss/*filepath", http.Dir("./ui/scss/"))
 	router.ServeFiles("/vendor/*filepath", http.Dir("./ui/vendor/"))
-	// TODO если что нужно тут добавляем
+
+	//router.ServeFiles("/css/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\css"))
+	//router.ServeFiles("/img/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\img"))
+	//router.ServeFiles("/js/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\js"))
+	//router.ServeFiles("/pages/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages"))
+	//router.ServeFiles("/scss/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\scss"))
+	//router.ServeFiles("/vendor/*filepath", http.Dir("C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\vendor"))
 
 	// LandingPage
-	router.HandlerFunc(http.MethodGet, "/", app.LandingPageHandler)
+	router.HandlerFunc(http.MethodGet, "/", app.showLandingPageHandler)
 	router.HandlerFunc(http.MethodPost, "/regForm", app.RegFormHandler)
 	router.HandlerFunc(http.MethodPost, "/login", app.LoginHandler)
 
 	// Admin
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.AdminPageHandler)
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.AdminRegisterUsersPageHandler)
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/services", app.requirePermission("is_admin", app.GetAddServicesPageHandler))
+	router.HandlerFunc(http.MethodPost, "/my-cabinet-admin/services", app.requirePermission("is_admin", app.PostAddServicesHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.requirePermission("is_admin", app.showAdminPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.requirePermission("is_admin", app.showAdminRegisterUsersPageHandler))
 
 	// B2B
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.B2BClientPageHandler)
@@ -32,8 +40,6 @@ func (app *application) routes() http.Handler {
 
 	// Concierge
 	//router.HandlerFunc(http.MethodGet, "/my-cabinet", app.CSPageHandler)
-	router.HandlerFunc(http.MethodGet, "/my-cabinet/services", app.GetAddServicesPageHandler)
-	router.HandlerFunc(http.MethodPost, "/my-cabinet/services", app.PostAddServicesHandler)
 
 	// Partner
 
@@ -43,6 +49,9 @@ func (app *application) routes() http.Handler {
 	//
 	//mux.HandleFunc("/", app.homePageHandler)
 	//mux.HandleFunc("/auth", app.authorizationPageHandler)
+
+	router.HandlerFunc(http.MethodPost, "/debug", app.PostAddUsersHandler)
+	router.HandlerFunc(http.MethodPost, "/debug/token", app.createAuthenticationTokenHandler)
 
 	return app.recoverPanic(app.authenticate(router))
 }

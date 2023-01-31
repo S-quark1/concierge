@@ -16,18 +16,18 @@ var (
 var AnonymousUser = &User{}
 
 type User struct {
-	ID          int64     `json:"id"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Email       string    `json:"email"`
-	Username    string    `json:"username"`
-	Password    password  `json:"password_hash"`
-	Activated   bool      `json:"activated"`
-	UserType    string    `json:"user_type"`
-	Preferences string    `json:"preferences"`
-	CreatedAt   time.Time `json:"created_at"`
-	DeletedAt   time.Time `json:"deleted_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          int64          `json:"id"`
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	Email       string         `json:"email"`
+	Username    string         `json:"username"`
+	Password    password       `json:"password_hash"`
+	Activated   bool           `json:"activated"`
+	UserType    string         `json:"user_type"`
+	Preferences string         `json:"preferences"`
+	CreatedAt   time.Time      `json:"created_at"`
+	DeletedAt   sql.NullString `json:"deleted_at"`
+	UpdatedAt   sql.NullString `json:"updated_at"`
 }
 
 func (u *User) IsAnonymous() bool {
@@ -66,9 +66,9 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 	return true, nil
 }
 
-func ValidateUsername(v *validator.Validator, username string) {
-	v.Check(username != "", "username", "must be provided")
-	v.Check(validator.Matches(username, validator.UsernameRX), "username", "must be a valid username")
+func ValidateEmail(v *validator.Validator, email string) {
+	v.Check(email != "", "email", "must be provided")
+	v.Check(validator.Matches(email, validator.EmailRX), "email", "must be a valid email address")
 }
 func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")
@@ -82,7 +82,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.LastName != "", "lastname", "must be provided")
 	v.Check(len(user.LastName) <= 500, "lastname", "must not be more than 500 bytes long")
 
-	ValidateUsername(v, user.Username)
+	ValidateEmail(v, user.Email)
 	// If the plaintext password is not nil, call the standalone
 	// ValidatePasswordPlaintext() helper.
 	if user.Password.plaintext != nil {
@@ -98,7 +98,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 	}
 }
 
-func (e UserModel) Insert(user *User) (string, error) {
+func (u UserModel) Insert(user *User) error {
 	query := `
 INSERT INTO users (first_name, last_name, email, username, password_hash, activated, user_type, preferences, created_at) 
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
@@ -107,22 +107,57 @@ RETURNING id`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := e.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID)
+	err := u.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID)
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"` ||
 			err.Error() == `pq: повторяющееся значение ключа нарушает ограничение уникальности "users_email_key"`:
-			return "", ErrDuplicateUsername
+			return ErrDuplicateUsername
 		default:
-			return "", err
+			return err
 		}
 	}
-	return user.Username, nil
+	return nil
 }
 
-func (e UserModel) GetByUsername(username string) (*User, error) {
+func (u UserModel) GetByEmail(email string) (*User, error) {
 	query := `
-SELECT *
+SELECT id, first_name, last_name, email, username, password_hash, activated, user_type, preferences, created_at, deleted_at, updated_at
+FROM users
+WHERE email = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var csEmployee User
+
+	err := u.DB.QueryRowContext(ctx, query, email).Scan(
+		&csEmployee.ID,
+		&csEmployee.FirstName,
+		&csEmployee.LastName,
+		&csEmployee.Email,
+		&csEmployee.Username,
+		&csEmployee.Password.hash,
+		&csEmployee.Activated,
+		&csEmployee.UserType,
+		&csEmployee.Preferences,
+		&csEmployee.CreatedAt,
+		&csEmployee.DeletedAt,
+		&csEmployee.UpdatedAt,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+	return &csEmployee, nil
+}
+
+func (u UserModel) GetByUsername(username string) (*User, error) {
+	query := `
+SELECT id, first_name, last_name, email, username, password_hash, activated, user_type, preferences, created_at, deleted_at, updated_at
 FROM users
 WHERE username = $1`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -130,13 +165,13 @@ WHERE username = $1`
 
 	var csEmployee User
 
-	err := e.DB.QueryRowContext(ctx, query, username).Scan(
+	err := u.DB.QueryRowContext(ctx, query, username).Scan(
 		&csEmployee.ID,
 		&csEmployee.FirstName,
 		&csEmployee.LastName,
 		&csEmployee.Email,
 		&csEmployee.Username,
-		&csEmployee.Password,
+		&csEmployee.Password.hash,
 		&csEmployee.Activated,
 		&csEmployee.UserType,
 		&csEmployee.Preferences,
@@ -156,7 +191,7 @@ WHERE username = $1`
 	return &csEmployee, nil
 }
 
-func (e UserModel) GetAll() ([]*User, error) {
+func (u UserModel) GetAll() ([]*User, error) {
 	// Declare the SQL statement
 	query := `
 SELECT id, first_name, last_name, email, username, password_hash, activated, user_type, preferences, created_at, deleted_at, updated_at
@@ -165,7 +200,7 @@ FROM users`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := e.DB.QueryContext(ctx, query)
+	rows, err := u.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +218,7 @@ FROM users`
 			&csEmployee.LastName,
 			&csEmployee.Email,
 			&csEmployee.Username,
-			&csEmployee.Password,
+			&csEmployee.Password.hash,
 			&csEmployee.Activated,
 			&csEmployee.UserType,
 			&csEmployee.Preferences,
@@ -204,7 +239,7 @@ FROM users`
 	return employees, nil
 }
 
-func (e UserModel) Update(user *User) error {
+func (u UserModel) Update(user *User) error {
 	query := `
 UPDATE users
 SET first_name = $1, last_name = $2, email = $3, username = $4, password_hash = $5, activated = $6, user_type = $7, preferences = $8, updated_at = NOW()
@@ -226,7 +261,7 @@ RETURNING updated_at`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := e.DB.QueryRowContext(ctx, query, args...).Scan(&user.UpdatedAt)
+	err := u.DB.QueryRowContext(ctx, query, args...).Scan(&user.UpdatedAt)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -238,7 +273,7 @@ RETURNING updated_at`
 	return nil
 }
 
-func (e UserModel) Delete(id int64) error {
+func (u UserModel) Delete(id int64) error {
 	query := `
 DELETE FROM users
 WHERE id = $1`
@@ -246,7 +281,7 @@ WHERE id = $1`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := e.DB.ExecContext(ctx, query, id)
+	result, err := u.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -260,7 +295,7 @@ WHERE id = $1`
 	return nil
 }
 
-func (e UserModel) SoftDelete(id int64) error {
+func (u UserModel) SoftDelete(id int64) error {
 	query := `
 UPDATE users
 SET deleted_at = NOW() 
@@ -268,7 +303,7 @@ WHERE id = $1`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	result, err := e.DB.ExecContext(ctx, query, id)
+	result, err := u.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -282,7 +317,7 @@ WHERE id = $1`
 	return nil
 }
 
-func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
+func (u UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
 	// Calculate the SHA-256 hash of the plaintext token provided by the client.
 	// Remember that this returns a byte *array* with length 32, not a slice.
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
@@ -307,7 +342,7 @@ AND tokens.expiry > $3`
 
 	// Execute the query, scanning the return values into a User struct. If no matching
 	// record is found we return an ErrRecordNotFound error.
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(
+	err := u.DB.QueryRowContext(ctx, query, args...).Scan(
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
