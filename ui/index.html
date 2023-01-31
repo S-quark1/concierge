@@ -47,11 +47,7 @@
           <div class="col-md-6 d-flex">
             <div class="modal-body p-5 img d-flex color-1 text-center d-flex align-items-center">
               <div class="text w-100">
-                <span class="icon-2 ion-ios-beer"></span>
-                <h5>Plan your activities and control your progress online</h5>
-                <div class="icon">
-                  <span class="ion-ios-bicycle"></span>
-                </div>
+                <h2>Sign in if you already have an account</h5>
               </div>
             </div>
           </div>
@@ -102,10 +98,10 @@
           <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
           <li><a class="nav-link scrollto" href="#about">About</a></li>
           <li><a class="nav-link scrollto" href="#why-us">Why Us</a></li>
-          <li><a class="nav-link   scrollto" href="#portfolio">Portfolio</a></li>
+          <li><a class="nav-link scrollto" href="#portfolio">Portfolio</a></li>
           <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
           <li>
-            <button class="" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+            <button class="navbut" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
               <a class="getstarted" data-toggle="modal" data-target="#exampleModalCenter">
                 Get Started
               </a>
@@ -121,40 +117,54 @@
   <!-- ======= Hero Section ======= -->
   <section id="hero" class="d-flex align-items-center">
 
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-1 order-lg-1 mb-5" data-aos="fade-up" data-aos-delay="200">
-          <h1>Concierge Service Kazakhstan</h1>
-          <h2>We Value Your Time</h2>
-          <div class="d-flex justify-content-center justify-content-lg-start">
-            <a href="#about" class="btn-get-started scrollto">Get Started</a>
-            <a href="" class="glightbox btn-watch-video"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
+      <div id="intro" class="bg-image vh-100 shadow-1-strong">
+        <video autoplay muted loop playsinline>
+          <source class="" src="img/videos/hero.mp4" type="video/mp4" />
+        </video>
+
+        <div class="mask">
+          <div class="container d-flex align-items-center justify-content-center h-100">
+            <div class="row flex-grow-1">
+              <div class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-1 order-lg-1 mb-5">
+                <h1>We value your time</h1>
+                <h2>Concierge Service Kazakhstan</h2>
+                <div class="d-flex justify-content-center justify-content-lg-start">
+                  <button class="navbut" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+                    <a class="btn-get-started" data-toggle="modal" data-target="#exampleModalCenter">
+                      Get Started
+                    </a>
+                  </button>
+                </div>
+              </div>
+              <!-- <div class="col-lg-3 order-2 order-lg-2"></div> -->
+              <div class="col-lg-6 order-1 order-lg-3 hero-img">
+    
+                <h1>Fill out this form </h1>
+                <h2>To get access to the best of what we offer:</h2>
+    
+                <form action="/regForm" method="post">
+                  <div class="col-sm-10 mb-4">
+                    <input type="text" class="form-control form-control-lg" id="colFormLabel" name="companyNameReg" placeholder="Your Company">
+                  </div>  
+    
+                  <div class="col-sm-10 mb-4">
+                    <input type="email" class="form-control form-control-lg" id="colFormLabel" name="emailReg" placeholder="example@gmail.com">
+                  </div>
+                  
+                  <div class="col-sm-10 mb-4">
+                    <input type="number" class="form-control form-control-lg" id="colFormLabel" name="phoneReg" placeholder="8 707 134 56 43">
+                  </div>
+    
+                  <button type="submit" class="btn btn-lg btn-secondary">Send</button>
+                </form>
+    
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-in" data-aos-delay="200">
-
-          <h1>Fill out this form </h1>
-          <h2>To get access to the best of what we offer:</h2>
-
-          <form action="/regForm" method="post">
-            <div class="col-sm-10 mb-4">
-              <input type="text" name="companyNameReg" class="form-control form-control-lg" id="colFormLabel" placeholder="Example Inc.">
-            </div>  
-
-            <div class="col-sm-10 mb-4">
-              <input type="email" name="emailReg" class="form-control form-control-lg" id="colFormLabel" placeholder="example@gmail.com">
-            </div>
-            
-            <div class="col-sm-10 mb-4">
-              <input type="number" name="phoneReg" class="form-control form-control-lg" id="colFormLabel" placeholder="+7 707 654 02 03">
-            </div>
-
-            <button type="submit" class="btn btn-lg btn-secondary">Send</button>
-          </form>
-
+          
         </div>
       </div>
-    </div>
+
 
   </section><!-- End Hero -->
 
@@ -692,7 +702,7 @@
                 <p>+1 5589 55488 55s</p>
               </div>
 
-              <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1 539943755621" frameborder="0" style="border:0; width: 100%; height: 290px;" allowfullscreen></iframe>
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1365.4253469061514!2d71.43375700699721!3d51.12319899533357!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x424584196171f9f3%3A0x570f42db9dc3641d!2sBts%20%22Yevrotsentr%22!5e0!3m2!1sen!2skz!4v1675013589256!5m2!1sen!2skz" frameborder="0" style="border:0; width: 100%; height: 290px;" allowfullscreen></iframe>
               
             </div>
 

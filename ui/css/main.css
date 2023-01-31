@@ -1,3 +1,19 @@
+/* Variables */
+body{
+  --btn-borders: 2px solid #747474;
+
+  --btn-bg: #00000000; 
+  --btn-bg-hover: #393939;
+  --btn-bg-hover-dark: #c9c9c9;
+
+  --btn-font-color: rgb(237, 237, 237);
+  --btn-font-color-dark: rgb(69, 69, 69);
+  --btn-font-color-hover: ;
+  
+
+  --ico-accents: rgb(69, 69, 69);
+  --ico-accents-hover: rgb(12, 12, 12);
+}
 
 
 /*--------------------------------------------------------------
@@ -8,13 +24,43 @@ body {
   color: #444444;
 }
 
+.bg-image {
+  position: relative;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50%;
+}
+
+.mask{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-attachment: fixed;
+}
+
+#intro{
+  max-height: 100vh;
+  width: 100%;
+}
+
+video{
+  min-width: 100%;
+  min-height: 100%;
+}
+
 a {
-  color: #8c7c47;
+  color: var(--ico-accents);
   text-decoration: none;
 }
 
 a:hover {
-  color: #968f79;
+  color: var(--ico-accents-hover);
   text-decoration: none;
 }
 
@@ -171,8 +217,8 @@ h6 {
   justify-content: space-between;
   padding: 10px 0 10px 30px;
   font-size: 15px;
-  font-weight: 500;
-  color: #fff;
+  font-weight: 800;
+  color: rgb(174, 174, 174);
   white-space: nowrap;
   transition: 0.3s;
 }
@@ -184,17 +230,23 @@ h6 {
   margin-left: 5px;
 }
 
-.navbar a:hover,
 .navbar .active,
-.navbar .active:focus,
-.navbar li:hover>a {
-  color: #8c7c47;
+.navbar .active:focus {
+  color: #ffffff;
+  transition: 0.3ms;
 }
 
-.navbar button{
+.navbar a:hover,
+.navbar li:hover>a{
+  color: #ffffff;
+  transition: 0.3ms;
+}
+
+.navbut{
   background-color: #ffffff00;
   color: #ffffff00;
   border-color: #ffffff00;
+  padding-left: 0;
 }
 
 .navbar .getstarted,
@@ -202,16 +254,18 @@ h6 {
   padding: 8px 20px;
   margin-left: 30px;
   border-radius: 50px;
-  color: #fff;
+  color: rgb(237, 237, 237);
   font-size: 14px;
-  border: 2px solid #8c7c47;
+  border: var(--btn-borders);
   font-weight: 600;
+  transition: 0.5s;
 }
 
 .navbar .getstarted:hover,
 .navbar .getstarted:focus:hover {
-  color: #fff;
-  background: #af995c;
+  color: rgb(237, 237, 237);
+  background: #393939;
+  transition: 0.5s;
 }
 
 .navbar .dropdown ul {
@@ -399,6 +453,7 @@ h6 {
   width: 100%;
   height: 100vh;
   background: #131313;
+  overflow: hidden;
 }
 
 #hero .container {
@@ -428,13 +483,13 @@ h6 {
   padding: 10px 28px 11px 28px;
   border-radius: 50px;
   transition: 0.5s;
-  margin: 10px 0 0 0;
-  color: #fff;
-  background: #8c7c47;
+  color: var(--btn-font-color);
+  background: var(--btn-bg);
+  border: var(--btn-borders);
 }
 
 #hero .btn-get-started:hover {
-  background: #209dd8;
+  background: var(--btn-bg-hover);
 }
 
 #hero .btn-watch-video {
@@ -443,20 +498,24 @@ h6 {
   align-items: center;
   transition: 0.5s;
   margin: 10px 0 0 25px;
-  color: #fff;
+  color: rgb(151, 151, 151);
   line-height: 1;
+}
+
+#hero .btn-watch-video:hover {
+  color: #f5f5f5;
 }
 
 #hero .btn-watch-video i {
   line-height: 0;
-  color: #fff;
+  color: rgb(151, 151, 151);
   font-size: 32px;
   transition: 0.3s;
   margin-right: 8px;
 }
 
 #hero .btn-watch-video:hover i {
-  color: #8c7c47;
+  color: #f5f5f5;
 }
 
 #hero .animated {
@@ -638,7 +697,7 @@ section {
   left: 0;
   top: 2px;
   font-size: 20px;
-  color: #8c7c47;
+  color: var(--btn-borders);
   line-height: 1;
 }
 
@@ -656,16 +715,15 @@ section {
   border-radius: 4px;
   transition: 0.3s;
   line-height: 1;
-  color: #8c7c47;
+  color: var(--btn-font-color-dark);
   -webkit-animation-delay: 0.8s;
   animation-delay: 0.8s;
   margin-top: 6px;
-  border: 2px solid #8c7c47;
+  border: var(--btn-borders);
 }
 
 .about .content .btn-learn-more:hover {
-  background: #8c7c47;
-  color: #fff;
+  background: var(--btn-bg-hover-dark);
   text-decoration: none;
 }
 
@@ -731,7 +789,7 @@ section {
 }
 
 .why-us .accordion-list span {
-  color: #8c7c47;
+  color: var(--btn-font-color-dark);
   font-weight: 600;
   font-size: 18px;
   padding-right: 10px;
@@ -758,7 +816,7 @@ section {
 }
 
 .why-us .accordion-list a.collapsed:hover {
-  color: #8c7c47;
+  color: var(--btn-font-color-dark);
 }
 
 .why-us .accordion-list a.collapsed .icon-show {
@@ -1426,8 +1484,8 @@ section {
 # Contact
 --------------------------------------------------------------*/
 .contact .info {
-  border-top: 3px solid #8c7c47;
-  border-bottom: 3px solid #8c7c47;
+  border-top: 3px solid #606060;
+  border-bottom: 3px solid #606060;
   padding: 30px;
   background: #fff;
   width: 100%;
@@ -1436,11 +1494,11 @@ section {
 
 .contact .info i {
   font-size: 20px;
-  color: #8c7c47;
+  color: var(--btn-font-color-dark);
   float: left;
   width: 44px;
   height: 44px;
-  background: #e2ddcc;
+  background: var(--btn-font-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1453,14 +1511,14 @@ section {
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 5px;
-  color: #75683c;
+  color: var(--btn-bg-hover);
 }
 
 .contact .info p {
   padding: 0 0 10px 60px;
   margin-bottom: 20px;
   font-size: 14px;
-  color: #978751;
+  color: var(--btn-borders);
 }
 
 .contact .info .email p {
@@ -1487,14 +1545,14 @@ section {
 }
 
 .contact .info .social-links a:hover {
-  background: #8c7c47;
+  background: var(--btn-bg-hover-dark);
   color: #fff;
 }
 
 .contact .info .email:hover i,
 .contact .info .address:hover i,
 .contact .info .phone:hover i {
-  background: #8c7c47;
+  background: var(--btn-bg-hover-dark);
   color: #fff;
 }
 
