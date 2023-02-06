@@ -34,7 +34,7 @@ func (app *application) ctxSetUser(w *http.Request, user *data.User) *http.Reque
 func (app *application) contextGetUser(r *http.Request) *data.User {
 	user, ok := r.Context().Value(userContextKey).(*data.User)
 	if !ok {
-		panic("missing user value in request context")
+		return nil
 	}
 	return user
 }

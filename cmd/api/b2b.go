@@ -7,7 +7,8 @@ import (
 
 func (app *application) B2BClientPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages\\b2b\\business-page.html",
+		//"C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages\\b2b\\business-page.html",
+		"./ui/pages/b2b/business-page.html",
 	}
 
 	ts, err := template.ParseFiles(files...)

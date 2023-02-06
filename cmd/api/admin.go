@@ -11,9 +11,9 @@ import (
 func (app *application) showAdminPageHandler(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"./ui/pages/admin/admin-page.html",
+		"./ui/pages/admin/analytics.html",
 		//"C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages\\admin\\admin-page.html",
-		//"./ui/pages/admin/blank.html",
-		//"./ui/pages/admin/404.html", // TODO и остальное... или еще рано?
+		//"./ui/pages/admin/404.html",
 	}
 
 	ts, err := template.ParseFiles(files...)

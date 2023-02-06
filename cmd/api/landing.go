@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"github.com/concierge/service/internal/data"
+	"github.com/go-session/session/v3"
 	"html/template"
 	"net/http"
 	"strings"
@@ -95,10 +97,15 @@ func (app *application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-	d := "Bearer " + token.Plaintext
-	r = app.contextSetUser(r, user)
+
+	//d := "Bearer " + token.Plaintext
+
+	store, err := session.Start(context.Background(), w, r)
+	store.Set("Bearer", token.Plaintext)
+
+	err = store.Save()
 	//r.Header.Add("Vary", "Authorization")
-	r.Header.Add("Authorization", d)
+	//r.Header.Add("Authorization", d)
 
 	//d := []string{"Bearer ", token.Plaintext}
 	//r = app.contextSetUser(r, user)

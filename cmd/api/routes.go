@@ -34,7 +34,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.requirePermission("is_admin", app.showAdminRegisterUsersPageHandler))
 
 	// B2B
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.B2BClientPageHandler)
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.requirePermission("is_B2B", app.B2BClientPageHandler))
 
 	// B2C
 
