@@ -133,19 +133,20 @@ func (app *application) requirePermission(code string, next http.HandlerFunc) ht
 		// Retrieve the user from the request context.
 		user := app.contextGetUser(r)
 		// Get the slice of permissions for the user.
-		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
-		if err != nil {
+		//permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		//if err != nil {
+		if user.UserType != "admin" {
 			//app.serverErrorResponse(w, r, err)
 			http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
 			return
 		}
 		// Check if the slice includes the required permission. If it doesn't, then
 		// return a 403 Forbidden response.
-		if !permissions.Include(code) {
-			//app.notPermittedResponse(w, r)
-			http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
-			return
-		}
+		//if !permissions.Include(code) {
+		//	//app.notPermittedResponse(w, r)
+		//	http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
+		//	return
+		//}
 		// Otherwise they have the required permission so we call the next handler in
 		// the chain.
 		next.ServeHTTP(w, r)

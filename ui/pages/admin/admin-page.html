@@ -74,8 +74,8 @@
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Client types:</h6>
-                        <a class="collapse-item" href="buttons.html">B2B</a>
-                        <a class="collapse-item" href="cards.html">B2C</a>
+                        <a class="collapse-item" href="">B2B</a>
+                        <a class="collapse-item" href="">B2C</a>
                         <a class="collapse-item" href="cards.html">Partners</a>
                         <a class="collapse-item" href="cards.html">Concierge</a>
                     </div>
@@ -129,8 +129,8 @@
             </li> -->
 
             <!-- Nav Item - Charts -->
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+            <li class="nav-item" id="analytics">
+                <a class="nav-link" href="">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>CMS</span></a>
             </li>
@@ -350,7 +350,9 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                {{template "analytics" .}}
+                <div class="container-fluid" id="contentW">
+
+                </div>
                 <!-- /.container-fluid -->
 
             </div>
@@ -413,6 +415,23 @@
     <!-- Page level custom scripts -->
     <script src="../../js/demo/chart-area-demo.js"></script>
     <script src="../../js/demo/chart-pie-demo.js"></script>
+    <script>
+        const navbar = document.querySelector(".nav-link");
+        const content = document.querySelector("#contentW");
+
+        navbar.addEventListener("click", e => {
+            const selected = e.target.id;
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", `/my-cabinet-admin/${selected}`, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    content.innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send();
+        });
+
+    </script>
 
 </body>
 

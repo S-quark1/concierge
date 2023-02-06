@@ -44,7 +44,7 @@ RETURNING id`
 	return nil
 }
 
-func (r RequestModel) GetByID(id int64) (*Request, error) {
+func (r RequestModel) GetByRequestID(id int64) (*Request, error) {
 	query := `
 SELECT * 
 FROM request 

@@ -112,7 +112,7 @@ func (app *application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	//w.Header()["Authorization"] = d
 
 	if user.UserType == "admin" {
-		http.Redirect(w, r, "http://localhost:8080/my-cabinet-admin", http.StatusSeeOther)
+		http.Redirect(w, r, "http://localhost:8080/my-cabinet-admin/", http.StatusSeeOther)
 		return
 	} else if user.UserType == "cs_employee" {
 		http.Redirect(w, r, "http://localhost:8080/my-cabinet", http.StatusSeeOther)
