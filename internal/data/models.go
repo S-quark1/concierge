@@ -20,6 +20,7 @@ type Models struct {
 	RegForm     RegFormModel
 	Token       TokenModel
 	Permissions PermissionModel
+	Request     RequestModel
 }
 
 func NewModels(db *sql.DB) Models {
@@ -31,5 +32,6 @@ func NewModels(db *sql.DB) Models {
 		RegForm:     RegFormModel{DB: db},
 		Token:       TokenModel{DB: db},
 		Permissions: PermissionModel{DB: db},
+		Request:     RequestModel{DB: db},
 	}
 }
