@@ -351,7 +351,7 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid" id="contentW">
-
+                    {{template "analytics" .}}
                 </div>
                 <!-- /.container-fluid -->
 
@@ -415,23 +415,23 @@
     <!-- Page level custom scripts -->
     <script src="../../js/demo/chart-area-demo.js"></script>
     <script src="../../js/demo/chart-pie-demo.js"></script>
-    <script>
-        const navbar = document.querySelector(".nav-link");
-        const content = document.querySelector("#contentW");
+<!--    <script>-->
+<!--        const navbar = document.querySelector(".nav-link");-->
+<!--        const content = document.querySelector("#contentW");-->
 
-        navbar.addEventListener("click", e => {
-            const selected = e.target.id;
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", `/my-cabinet-admin/${selected}`, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                    content.innerHTML = xhr.responseText;
-                }
-            };
-            xhr.send();
-        });
+<!--        navbar.addEventListener("click", e => {-->
+<!--            const selected = e.target.id;-->
+<!--            const xhr = new XMLHttpRequest();-->
+<!--            xhr.open("GET", `/my-cabinet-admin/${selected}`, true);-->
+<!--            xhr.onreadystatechange = function() {-->
+<!--                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {-->
+<!--                    content.innerHTML = xhr.responseText;-->
+<!--                }-->
+<!--            };-->
+<!--            xhr.send();-->
+<!--        });-->
 
-    </script>
+<!--    </script>-->
 
 </body>
 

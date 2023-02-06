@@ -12,7 +12,7 @@ func (app *application) showAdminPageHandler(w http.ResponseWriter, r *http.Requ
 	//http.ServeFile(w, r, "./ui/pages/admin/analytics.html")
 	files := []string{
 		"./ui/pages/admin/admin-page.html",
-		//"./ui/pages/admin/analytics.html",
+		"./ui/pages/admin/analytics.html",
 		//"C:\\Users\\mapol\\IdeaProjects\\concierge\\ui\\pages\\admin\\admin-page.html",
 		//"./ui/pages/admin/404.html",
 	}
@@ -32,27 +32,27 @@ func (app *application) showAdminPageHandler(w http.ResponseWriter, r *http.Requ
 
 // get
 func (app *application) showAdminRegisterUsersPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./ui/pages/admin/analytics.html")
-	//files := []string{
-	//	"./ui/pages/admin/analytics.html",
-	//}
-	//
-	//ts, err := template.ParseFiles(files...)
-	//if err != nil {
-	//	app.serverErrorResponse(w, r, err)
-	//	return
-	//}
-	//
-	//regForms, err := app.models.RegForm.GetByDateAsc()
-	//if err != nil {
-	//	app.serverErrorResponse(w, r, err)
-	//	return
-	//}
-	//
-	//err = ts.Execute(w, regForms)
-	//if err != nil {
-	//	app.serverErrorResponse(w, r, err)
-	//}
+	//http.ServeFile(w, r, "./ui/pages/admin/analytics.html")
+	files := []string{
+		"./ui/pages/admin/analytics.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	regForms, err := app.models.RegForm.GetByDateAsc()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = ts.Execute(w, regForms)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 // get function. only for the ui

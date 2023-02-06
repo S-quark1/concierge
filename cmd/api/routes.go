@@ -30,8 +30,8 @@ func (app *application) routes() http.Handler {
 	// Admin
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/services", app.requirePermission("is_admin", app.GetAddServicesPageHandler))
 	router.HandlerFunc(http.MethodPost, "/my-cabinet-admin/services", app.requirePermission("is_admin", app.PostAddServicesHandler))
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/", app.requirePermission("is_admin", app.showAdminPageHandler))
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/analytics", app.requirePermission("is_admin", app.showAdminRegisterUsersPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.requirePermission("is_admin", app.showAdminPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.requirePermission("is_admin", app.showAdminRegisterUsersPageHandler))
 
 	// B2B
 	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.requirePermission("is_B2B", app.B2BClientPageHandler))
