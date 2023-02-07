@@ -91,7 +91,6 @@ func (app *application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
 		return
 	}
-
 	token, err := app.models.Token.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -114,7 +113,7 @@ func (app *application) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if user.UserType == "admin" {
 		http.Redirect(w, r, "http://localhost:8080/my-cabinet-admin/", http.StatusSeeOther)
 		return
-	} else if user.UserType == "cs_employee" {
+	} else if user.UserType == "client" {
 		http.Redirect(w, r, "http://localhost:8080/my-cabinet", http.StatusSeeOther)
 		return
 	}

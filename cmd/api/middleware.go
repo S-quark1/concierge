@@ -135,7 +135,7 @@ func (app *application) requirePermission(code string, next http.HandlerFunc) ht
 		// Get the slice of permissions for the user.
 		//permissions, err := app.models.Permissions.GetAllForUser(user.ID)
 		//if err != nil {
-		if user.UserType != "admin" {
+		if user.UserType != code {
 			//app.serverErrorResponse(w, r, err)
 			http.Redirect(w, r, "http://localhost:8080", http.StatusSeeOther)
 			return

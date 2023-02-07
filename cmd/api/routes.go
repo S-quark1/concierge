@@ -28,16 +28,16 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/login", app.LoginHandler)
 
 	// Admin
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/services", app.requirePermission("is_admin", app.GetAddServicesPageHandler))
-	router.HandlerFunc(http.MethodPost, "/my-cabinet-admin/services", app.requirePermission("is_admin", app.PostAddServicesHandler))
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.requirePermission("is_admin", app.showAdminPageHandler))
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.requirePermission("is_admin", app.showAdminRegisterUsersPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/services", app.requirePermission("admin", app.GetAddServicesPageHandler))
+	router.HandlerFunc(http.MethodPost, "/my-cabinet-admin/services", app.requirePermission("admin", app.PostAddServicesHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin", app.requirePermission("admin", app.showAdminPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-admin/register-users", app.requirePermission("admin", app.showAdminRegisterUsersPageHandler))
 
 	// B2B
-	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.requirePermission("is_B2B", app.B2BClientPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet-b-client", app.requirePermission("b2bclient", app.B2BClientPageHandler))
 
 	// B2C
-	router.HandlerFunc(http.MethodGet, "/my-cabinet", app.requirePermission("is_B2С", app.B2CClientPageHandler))
+	router.HandlerFunc(http.MethodGet, "/my-cabinet", app.requirePermission("client", app.B2CClientPageHandler))
 
 	// Concierge
 	//router.HandlerFunc(http.MethodGet, "/my-cabinet", app.CSPageHandler)
